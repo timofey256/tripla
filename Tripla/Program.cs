@@ -8,39 +8,69 @@ class UrlFormatter {
 	private readonly string everywhere_endpoint = "lety-z/";
 	private readonly string city_to_city_endpoint = "lety/";
 
-	private string start_city;
-	private string dest_city;
-	private string start_date;
-	private string end_date;
+	private readonly Dictionary<string, string> cityToCode = new Dictionary<string, string>() {
+		{"Prague", "prg"},
+		{"Milan", "mila"}
+	};
 
-	public UrlFormatter() {
-		start_city = String.Empty;
-		dest_city = String.Empty;
-		start_date = String.Empty;	
-		end_date = String.Empty;	
-	}
+	private readonly Dictionary<string, string> codeToCity = new Dictionary<string, string>() {
+		{"prg", "Prague"},
+		{"mila", "Milan"}
+	};
 
-	public void setDate(string start, string finish) {
-		start_date = start + "/";
-		end_date = finish + "/";
-	}
-
-	public void setStartCity(string city) {
-		start_city = city + "/";
+	private string startCityCode;
+	public string startCity {
+		private get { return codeToCity[startCityCode]; } 
+		set {
+			if (!cityToCode.ContainsKey(value)) {
+				throw new ArgumentException($"You can't find a trip through {value}.");
+			}
+			startCityCode = cityToCode[value] + "/";
+		}
 	}
 	
-	public void setDestCity(string city) {
-		dest_city = city + "/";
+	private string destCityCode;
+	public string destCity {
+		private get { return codeToCity[destCityCode]; } 
+		set {
+			if (!cityToCode.ContainsKey(value)) {
+				throw new ArgumentException($"You can't find a trip through {value}.");
+			}
+			destCityCode = cityToCode[value] + "/";
+		}
+	}
+	
+	private string _startDate;
+	public string startDate { 
+		get { return _startDate; } 
+		set {
+			_startDate = value + "/";
+		}
+	}
+
+	private string _endDate;
+	public string endDate { 
+		get {return _endDate; }
+		set {
+			_endDate = value + "/";
+		}
 	}
 	
 	public string getUrl(bool is_everywhere = false) {
 		if (is_everywhere)
-			return base_url + everywhere_endpoint + start_city + start_date + end_date;
+			return base_url + everywhere_endpoint + startCityCode + _startDate + _endDate;
 		return "";
 	}
 }
 static class Scrapper
 {
+	private static string[] userAgents = new[]
+	{
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
+		"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
+		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
+	};
+	
 	public static string GetHTML(string url)
 	{
 		var response = CallUrl(url);
@@ -81,15 +111,9 @@ static class Scrapper
 	private static async Task ConfigurePage(IPage page)
    	{
         	await page.SetViewportAsync(new ViewPortOptions { Width = 1366, Height = 768 });
-		var userAgents = new[]
-		{
-		    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
-		    "Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
-		    "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
-		};
 		var randomUserAgent = userAgents[new Random().Next(0, userAgents.Length)];
 		await page.SetUserAgentAsync(randomUserAgent);
-        	await page.SetOfflineModeAsync(false); // Set to true for offline mode
+        	await page.SetOfflineModeAsync(false);
     	}
 
 	private static async Task ConfigureRequestInterceptions(IPage page) {
@@ -111,10 +135,12 @@ static class Scrapper
 class Program {
 	public static void Main(string[] args) {
 		var formatter = new UrlFormatter();
-		formatter.setDate("230724", "230730");
-		formatter.setStartCity("prg");
+		formatter.startDate = "230724";
+		formatter.endDate = "230730";
+		formatter.startCity = "Prague";
 		string skyScannerUrl = formatter.getUrl(true);
-		string page = Scrapper.GetHTML(skyScannerUrl);
-		Console.WriteLine(page);
+		Console.WriteLine(skyScannerUrl);
+		//string page = Scrapper.GetHTML(skyScannerUrl);
+		//Console.WriteLine(page);
 	}
 }
