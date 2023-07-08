@@ -1,4 +1,5 @@
 ﻿using System.Net.Http; 
+using System.Text.RegularExpressions;
 using PuppeteerSharp;
 
 namespace SkyScannerScraper;
@@ -63,6 +64,13 @@ static class Scrapper
 	{
 		var response = CallUrl(url);
 		string page = response.Result;
+		page = removeScripts(page);
+		return page;
+	}
+
+	private static string removeScripts(string page) {
+		string pattern = "<script>(.)+</script>";
+		page = Regex.Replace(page, pattern, "");
 		return page;
 	}
 
@@ -128,7 +136,7 @@ class Program {
 		formatter.startCity = "Prague";
 		string skyScannerUrl = formatter.getUrl(true);
 		Console.WriteLine(skyScannerUrl);
-		//string page = Scrapper.GetHTML(skyScannerUrl);
-		//Console.WriteLine(page);
+		string page = Scrapper.GetHTML(skyScannerUrl);
+		Console.WriteLine(page);
 	}
 }
