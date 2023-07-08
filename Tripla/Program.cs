@@ -4,9 +4,9 @@ using PuppeteerSharp;
 namespace SkyScannerScraper;
 
 class UrlFormatter {
-	private readonly string base_url = "https://www.skyscanner.cz/doprava/"; 
-	private readonly string everywhere_endpoint = "lety-z/";
-	private readonly string city_to_city_endpoint = "lety/";
+	private readonly string base_url = "https://www.skyscanner.cz/doprava"; 
+	private readonly string everywhere_endpoint = "lety-z";
+	private readonly string city_to_city_endpoint = "lety";
 
 	private readonly Dictionary<string, string> cityToCode = new Dictionary<string, string>() {
 		{"Prague", "prg"},
@@ -25,7 +25,7 @@ class UrlFormatter {
 			if (!cityToCode.ContainsKey(value)) {
 				throw new ArgumentException($"You can't find a trip through {value}.");
 			}
-			startCityCode = cityToCode[value] + "/";
+			startCityCode = cityToCode[value];
 		}
 	}
 	
@@ -36,29 +36,17 @@ class UrlFormatter {
 			if (!cityToCode.ContainsKey(value)) {
 				throw new ArgumentException($"You can't find a trip through {value}.");
 			}
-			destCityCode = cityToCode[value] + "/";
+			destCityCode = cityToCode[value];
 		}
 	}
 	
-	private string _startDate;
-	public string startDate { 
-		get { return _startDate; } 
-		set {
-			_startDate = value + "/";
-		}
-	}
+	public string startDate { get; set; }
 
-	private string _endDate;
-	public string endDate { 
-		get {return _endDate; }
-		set {
-			_endDate = value + "/";
-		}
-	}
+	public string endDate { get; set; }	
 	
 	public string getUrl(bool is_everywhere = false) {
 		if (is_everywhere)
-			return base_url + everywhere_endpoint + startCityCode + _startDate + _endDate;
+			return $"{base_url}/{everywhere_endpoint}/{startCityCode}/{startDate}/{endDate}";
 		return "";
 	}
 }
