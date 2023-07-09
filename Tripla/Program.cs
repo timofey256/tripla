@@ -134,19 +134,63 @@ static class Scrapper {
 	} 
 }
 
+class Country {
+	public string Name { get; private set; }
+	public string Link { get; private set; }
+	
+	public Country(string name, string link) {
+		Name = name;
+		Link = link;
+	}
+}
+
 class PageParser {
 	public string Page { get; set; }
-	
+		
+	private readonly string countryNamePattern = "<span(.)+\">[a-zA-Z]<\\/span>"; 
+	private readonly string linkPattern = "/https(.)+";
+
 	public PageParser(string _page) {
 		Page = _page;	
 	}
 
-	public IEnumerable<HtmlNode> GetAllItems() {
+	public List<Country> GetAllCities() {
 		var content = new HtmlDocument();
 		content.LoadHtml(Page);
 
-		var cards = content.DocumentNode.Descendants("div").Where(d => d.GetAttributeValue("class", "").Contains("BpkCard_bpk-card"));
-		return cards;
+		var nodes = content.DocumentNode.Descendants("div").Where(d => d.GetAttributeValue("class", "").Contains("BpkCard_bpk-card"));
+		
+		List<Country> destinations = extractCardsInfo(nodes,content); 
+		return destinations;
+	}
+
+	private List<Country> extractCardsInfo(IEnumerable<HtmlNode> nodes, HtmlDocument doc) {
+		List<Country> countries = new List<Country>();
+		foreach (HtmlNode node in nodes) {
+			string card = node.InnerHtml;
+	
+			// (???) Probably there's a room for speeding up by going through a card only once?
+			// but will it be a significant speed increasing tho?
+			var countryNode = node.Descendants("span").Where(d => d.GetAttributeValue("class", "").Contains("BpkText_bpk-text__"));
+			var linkNode = node.Descendants("a");
+			if (!countryNode.Any() || !linkNode.Any()) {
+				continue;
+			}
+			
+			var countryName = countryNode.ElementAt(0).InnerHtml;
+			var link = linkNode.ElementAt(0).GetAttributeValue("href", "");
+			Country country = new Country(countryName, link);	
+
+			countries.Add(country);
+		}
+		return countries;
+	}
+
+	private string extractInfo(string text, string pattern) {
+		Regex regexPattern = new Regex(pattern);
+		GroupCollection groups = regexPattern.Match(text).Groups;
+		string info = groups[1].Value;
+		return info;	
 	}
 }
 
@@ -159,11 +203,12 @@ class Program {
 		string skyScannerUrl = formatter.getUrl(true);
 		Console.WriteLine($"Generated URL: {skyScannerUrl}");
 		string page = Scrapper.GetHTML(skyScannerUrl);
+		//Console.WriteLine($"Page: {page} \n-------------");
 		//string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
 		PageParser parser = new PageParser(page);
-		var nodes = parser.GetAllItems();
-		foreach (var node in nodes) {
-			Console.WriteLine(node.InnerHtml);
+		var nodes = parser.GetAllCities();
+		foreach (var city in nodes) {
+			Console.WriteLine($"Country: {city.Name}, Link: {city.Link}. \n");
 		}
 	}
 }
