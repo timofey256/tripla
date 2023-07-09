@@ -51,17 +51,15 @@ class UrlFormatter {
 		return "";
 	}
 }
-static class Scrapper
-{
-	private static string[] userAgents = new[]
-	{
+
+static class Scrappe {
+	private static string[] userAgents = new[] {
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
 		"Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36"
 	};
 	
-	public static string GetHTML(string url)
-	{
+	public static string GetHTML(string url) {
 		var response = CallUrl(url);
 		string page = response.Result;
 		page = removeScripts(page);
@@ -74,8 +72,7 @@ static class Scrapper
 		return page;
 	}
 
-	private static async Task<string> CallUrl(string url)
-	{
+	private static async Task<string> CallUrl(string url) {
 		await SetupBrowser();
 
 		using var browser = await Puppeteer.LaunchAsync(new LaunchOptions
@@ -98,14 +95,12 @@ static class Scrapper
         	return content;
     	}
 
-    	private static async Task SetupBrowser()
-    	{
+    	private static async Task SetupBrowser() {
         	using var browserFetcher = new BrowserFetcher();
         	await browserFetcher.DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
     	}
 
-	private static async Task ConfigurePage(IPage page)
-   	{
+	private static async Task ConfigurePage(IPage page) {
         	await page.SetViewportAsync(new ViewPortOptions { Width = 1366, Height = 768 });
 		var randomUserAgent = userAgents[new Random().Next(0, userAgents.Length)];
 		await page.SetUserAgentAsync(randomUserAgent);
