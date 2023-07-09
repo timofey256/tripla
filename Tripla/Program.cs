@@ -6,9 +6,9 @@ using HtmlAgilityPack;
 namespace SkyScannerScraper;
 
 class UrlFormatter {
-	private readonly string base_url = "https://www.skyscanner.cz/doprava"; 
-	private readonly string everywhere_endpoint = "lety-z";
-	private readonly string city_to_city_endpoint = "lety";
+	private readonly string base_url = "https://www.skyscanner.com/transport"; 
+	private readonly string everywhere_endpoint = "flights-from";
+	private readonly string city_to_city_endpoint = "flights";
 
 	private readonly Dictionary<string, string> cityToCode = new Dictionary<string, string>() {
 		{"Prague", "prg"},
@@ -158,8 +158,8 @@ class Program {
 		formatter.startCity = "Prague";
 		string skyScannerUrl = formatter.getUrl(true);
 		Console.WriteLine($"Generated URL: {skyScannerUrl}");
-		//string page = Scrapper.GetHTML(skyScannerUrl);
-		string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
+		string page = Scrapper.GetHTML(skyScannerUrl);
+		//string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
 		PageParser parser = new PageParser(page);
 		var nodes = parser.GetAllItems();
 		foreach (var node in nodes) {
