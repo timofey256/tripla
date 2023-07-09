@@ -1,6 +1,7 @@
 ﻿using System.Net.Http; 
 using System.Text.RegularExpressions;
 using PuppeteerSharp;
+using HtmlAgilityPack;
 
 namespace SkyScannerScraper;
 
@@ -133,6 +134,22 @@ static class Scrapper {
 	} 
 }
 
+class PageParser {
+	public string Page { get; set; }
+	
+	public PageParser(string _page) {
+		Page = _page;	
+	}
+
+	public IEnumerable<HtmlNode> GetAllItems() {
+		var content = new HtmlDocument();
+		content.LoadHtml(Page);
+
+		var cards = content.DocumentNode.Descendants("div").Where(d => d.GetAttributeValue("class", "").Contains("BpkCard_bpk-card"));
+		return cards;
+	}
+}
+
 class Program {
 	public static void Main(string[] args) {
 		var formatter = new UrlFormatter();
@@ -143,6 +160,10 @@ class Program {
 		Console.WriteLine($"Generated URL: {skyScannerUrl}");
 		//string page = Scrapper.GetHTML(skyScannerUrl);
 		string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
-		Console.WriteLine(page);
+		PageParser parser = new PageParser(page);
+		var nodes = parser.GetAllItems();
+		foreach (var node in nodes) {
+			Console.WriteLine(node.InnerHtml);
+		}
 	}
 }
