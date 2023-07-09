@@ -52,7 +52,7 @@ class UrlFormatter {
 	}
 }
 
-static class Scrappe {
+static class Scrapper {
 	private static string[] userAgents = new[] {
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.61 Safari/537.36",
 		"Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:93.0) Gecko/20100101 Firefox/93.0",
@@ -65,9 +65,19 @@ static class Scrappe {
 		page = removeScripts(page);
 		return page;
 	}
+	
+	/// <summary>
+	/// Returns page that was retrieved previously in order to not scrap the website once again.
+	/// Only for testing!
+	/// </summary>
+	public static string GetPregeneratedHTML(string filePath) {
+		string text = File.ReadAllText(filePath);
+		text = removeScripts(text);
+		return text;	
+	}
 
 	private static string removeScripts(string page) {
-		string pattern = "<script>(.)+</script>";
+		string pattern = "<script(.)+/script>";
 		page = Regex.Replace(page, pattern, "");
 		return page;
 	}
@@ -130,8 +140,9 @@ class Program {
 		formatter.endDate = "230730";
 		formatter.startCity = "Prague";
 		string skyScannerUrl = formatter.getUrl(true);
-		Console.WriteLine(skyScannerUrl);
-		string page = Scrapper.GetHTML(skyScannerUrl);
+		Console.WriteLine($"Generated URL: {skyScannerUrl}");
+		//string page = Scrapper.GetHTML(skyScannerUrl);
+		string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
 		Console.WriteLine(page);
 	}
 }
