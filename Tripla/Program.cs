@@ -136,10 +136,12 @@ static class Scrapper {
 
 class Country {
 	public string Name { get; private set; }
+	public int Price { get; private set; }
 	public string Link { get; private set; }
 	
-	public Country(string name, string link) {
+	public Country(string name, int price, string link) {
 		Name = name;
+		Price = price;
 		Link = link;
 	}
 }
@@ -173,13 +175,16 @@ class PageParser {
 			// but will it be a significant speed increasing tho?
 			var countryNode = node.Descendants("span").Where(d => d.GetAttributeValue("class", "").Contains("BpkText_bpk-text__"));
 			var linkNode = node.Descendants("a");
+			var priceNode = node.Descendants("div").Where(d => d.GetAttributeValue("class", "").Contains("PriceDescription_container"));
 			if (!countryNode.Any() || !linkNode.Any()) {
 				continue;
 			}
 			
-			var countryName = countryNode.ElementAt(0).InnerHtml;
-			var link = linkNode.ElementAt(0).GetAttributeValue("href", "");
-			Country country = new Country(countryName, link);	
+			string countryName = countryNode.ElementAt(0).InnerHtml;
+			string priceStr = priceNode.ElementAt(0).Descendants("span").ElementAt(1).InnerHtml;
+			int price = int.Parse(Regex.Replace(priceStr, "[^0-9.]", ""));
+			string link = linkNode.ElementAt(0).GetAttributeValue("href", "");
+			Country country = new Country(countryName, price, link);	
 
 			countries.Add(country);
 		}
@@ -202,13 +207,13 @@ class Program {
 		formatter.startCity = "Prague";
 		string skyScannerUrl = formatter.getUrl(true);
 		Console.WriteLine($"Generated URL: {skyScannerUrl}");
-		string page = Scrapper.GetHTML(skyScannerUrl);
+		//string page = Scrapper.GetHTML(skyScannerUrl);
 		//Console.WriteLine($"Page: {page} \n-------------");
-		//string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
+		string page = Scrapper.GetPregeneratedHTML(@"./pregeneratedPage.html");
 		PageParser parser = new PageParser(page);
 		var nodes = parser.GetAllCities();
 		foreach (var city in nodes) {
-			Console.WriteLine($"Country: {city.Name}, Link: {city.Link}. \n");
+			Console.WriteLine($"Country: {city.Name}, \nPrice: {city.Price} \n Link: {city.Link}. \n");
 		}
 	}
 }
