@@ -3,17 +3,11 @@ using HtmlAgilityPack;
 
 namespace SkyScannerScraper;
 
-class PageParser {
-	public string Page { get; set; }
-		
-	private readonly string countryNamePattern = "<span(.)+\">[a-zA-Z]<\\/span>"; 
-	private readonly string linkPattern = "/https(.)+";
+static class PageParser {
+	private static readonly string countryNamePattern = "<span(.)+\">[a-zA-Z]<\\/span>"; 
+	private static readonly string linkPattern = "/https(.)+";
 
-	public PageParser(string _page) {
-		Page = _page;	
-	}
-
-	public List<Country> GetAllCities() {
+	public static List<Country> GetAllCards(string Page) {
 		var content = new HtmlDocument();
 		content.LoadHtml(Page);
 
@@ -23,7 +17,7 @@ class PageParser {
 		return destinations;
 	}
 
-	private List<Country> extractCardsInfo(IEnumerable<HtmlNode> nodes, HtmlDocument doc) {
+	private static List<Country> extractCardsInfo(IEnumerable<HtmlNode> nodes, HtmlDocument doc) {
 		List<Country> countries = new List<Country>();
 		foreach (HtmlNode node in nodes) {
 			string card = node.InnerHtml;
@@ -48,7 +42,7 @@ class PageParser {
 		return countries;
 	}
 
-	private string extractInfo(string text, string pattern) {
+	private static string extractInfo(string text, string pattern) {
 		Regex regexPattern = new Regex(pattern);
 		GroupCollection groups = regexPattern.Match(text).Groups;
 		string info = groups[1].Value;
