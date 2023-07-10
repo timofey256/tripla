@@ -13,6 +13,9 @@ static class Scrapper {
 	public static string GetHTML(string url) {
 		var response = CallUrl(url);
 		string page = response.Result;
+		if (page.Contains("Are you a person or a robot?")) {
+			Console.WriteLine("ERROR: Script was detected.");
+		}
 		page = removeScripts(page);
 		return page;
 	}
