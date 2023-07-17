@@ -7,7 +7,8 @@ namespace Tripla {
 class AmadeusApiClient {
 	private readonly string apiKey; 
 	private readonly string apiSecret; 
-       	private readonly string	apiBaseUrl = "https://test.api.amadeus.com/v2/shopping/flight-offers";
+       	private const string apiBaseUrl = "https://test.api.amadeus.com/v2/shopping/flight-offers";
+	private const string accessTokenUrl = "https://test.api.amadeus.com/v1/security/oauth2/token";
 	private readonly HttpClient httpClient;
 	
 	private string accessToken;
@@ -24,13 +25,10 @@ class AmadeusApiClient {
 	}
 
 	public async Task<string> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
-		if (accessToken == null && DateTime.Compare(tokenExpireTime, DateTime.Now) <= 0)  {
-			TokenResponse tokenResponse = await GetAccessToken();	
-			accessToken = tokenResponse.access_token;
-			tokenExpireTime = DateTime.Now.AddSeconds(tokenResponse.expires_in);			
-		}
+		await checkIfTokenIsValid();
 
 		Console.WriteLine($"Access token: {accessToken}");
+		
 		var parameters = new Dictionary<string, string>() {
 			{ "originLocationCode", originCode },
 			{ "destinationLocationCode", destinationCode },
@@ -38,15 +36,16 @@ class AmadeusApiClient {
 			{ "adults", adults.ToString() },
 			{ "max", maxOffers.ToString() }
 		};
-		
 		UrlFormatter urlFormatter = new UrlFormatter(apiBaseUrl);
-		string url = urlFormatter.GetUrl(parameters);	
-		httpClient.DefaultRequestHeaders.Clear();
-        	
-		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
-		httpClient.DefaultRequestHeaders.Add("Accept", $"application/json");
+		string url = urlFormatter.GetUrl(parameters);		
 		
-		Console.WriteLine($"Url: {url}");	
+		string response = await sendFlightsRequest(url);
+		return response;
+	}
+	
+	private async Task<string> sendFlightsRequest(string url) {
+		setHeaders();
+
 		string response = null;
 		try {	
 			response = await httpClient.GetStringAsync(url);
@@ -54,28 +53,33 @@ class AmadeusApiClient {
 		catch (Exception error) {
 			Console.WriteLine(error.Message);
 		}
+		
 		Console.WriteLine(response);
 		return response;
 	}
-	
-	private async Task<TokenResponse> GetAccessToken() {
-		var url = "https://test.api.amadeus.com/v1/security/oauth2/token";
 
-		// Set the request content
-		var content = new FormUrlEncodedContent(new Dictionary<string, string>
-		{
-		    { "grant_type", "client_credentials" },
-		    { "client_id", apiKey },
-		    { "client_secret", apiSecret }
-		});
-		
-		httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
-		
+	private async Task checkIfTokenIsValid() {
+		if (DateTime.Compare(tokenExpireTime, DateTime.Now) > 0)  {
+			return;
+		}
+
+		TokenResponse tokenResponse = await GetAccessToken();	
+		accessToken = tokenResponse.access_token;
+		tokenExpireTime = DateTime.Now.AddSeconds(tokenResponse.expires_in);			
+	}
+	
+	private void setHeaders() {	
+		httpClient.DefaultRequestHeaders.Clear();
+		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
+		httpClient.DefaultRequestHeaders.Add("Accept", $"application/json");
+	}
+
+	private async Task<TokenResponse> GetAccessToken() {
 		TokenResponse tokenResponse = null;
 		try {
-			var response = await httpClient.PostAsync(url, content);
+			var content = getRequestContentForAccessToken();	
+			var response = await httpClient.PostAsync(accessTokenUrl, content);
 			if (response.IsSuccessStatusCode) {
-				// Parse the response JSON
    				string data = await response.Content.ReadAsStringAsync();
 				tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(data);
 		    	}
@@ -84,12 +88,22 @@ class AmadeusApiClient {
 		    	}
 		}
 		catch (Exception ex) {
-		    Console.WriteLine("Request error: " + ex.Message);
+		    Console.WriteLine(ex.Message);
 		}	
 		return tokenResponse;
 	}
-	
-	public class TokenResponse {
+
+	private FormUrlEncodedContent getRequestContentForAccessToken() {
+		FormUrlEncodedContent content = new FormUrlEncodedContent(new Dictionary<string, string>
+		{
+		    { "grant_type", "client_credentials" },
+		    { "client_id", apiKey },
+		    { "client_secret", apiSecret }
+		});
+		return content;
+	}
+
+	private class TokenResponse {
     		public string access_token { get; set; }
     		public int expires_in { get; set; }
 	}	
