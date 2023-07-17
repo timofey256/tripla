@@ -2,7 +2,7 @@ using System.Text;
 using System.Net.Http;
 using Newtonsoft.Json;
 
-namespace Tripla {
+namespace Tripla;
 
 class AmadeusApiClient {
 	private readonly string apiKey; 
@@ -121,6 +121,4 @@ class AmadeusApiClient {
 		public string total { get; set; }
 		public string currency { get; set; }
 	}
-}
-
 }
