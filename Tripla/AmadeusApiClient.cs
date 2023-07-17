@@ -16,6 +16,25 @@ class AmadeusApiClient {
 	
 	private const int maxOffers = 1;
 
+	private class TokenResponse {
+    		public string access_token { get; set; }
+    		public int expires_in { get; set; }
+	}	
+	
+	private class FlightOfferResponse {
+		public List<FlightOffer> data {get; set;}
+	}
+
+	private class FlightOffer {
+		public Price price { get; set; }
+		public List<string> validatingAirlineCodes { get; set; }
+	}
+
+	private class Price {
+		public string total { get; set; }
+		public string currency { get; set; }
+	}
+	
 	public AmadeusApiClient(string _apiKey, string _apiSecret) {
 		httpClient = new HttpClient();
 		apiKey = _apiKey;
@@ -26,9 +45,14 @@ class AmadeusApiClient {
 
 	public async Task<string> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
 		await checkIfTokenIsValid();
-
-		Console.WriteLine($"Access token: {accessToken}");
 		
+		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, departureDate, adults);	
+		string response = await sendFlightsRequest(url);
+		
+		return response;
+	}
+	
+	private string buildFlightOffersEndpoint(string originCode, string destinationCode, string departureDate, int adults) {	
 		var parameters = new Dictionary<string, string>() {
 			{ "originLocationCode", originCode },
 			{ "destinationLocationCode", destinationCode },
@@ -37,12 +61,10 @@ class AmadeusApiClient {
 			{ "max", maxOffers.ToString() }
 		};
 		UrlFormatter urlFormatter = new UrlFormatter(apiBaseUrl);
-		string url = urlFormatter.GetUrl(parameters);		
-		
-		string response = await sendFlightsRequest(url);
-		return response;
+		string url = urlFormatter.GetUrl(parameters);
+		return url;		
 	}
-	
+
 	private async Task<string> sendFlightsRequest(string url) {
 		setHeaders();
 
@@ -103,22 +125,4 @@ class AmadeusApiClient {
 		return content;
 	}
 
-	private class TokenResponse {
-    		public string access_token { get; set; }
-    		public int expires_in { get; set; }
-	}	
-	
-	private class FlightOfferResponse {
-		public List<FlightOffer> data {get; set;}
-	}
-
-	private class FlightOffer {
-		public Price price { get; set; }
-		public List<string> validatingAirlineCodes { get; set; }
-	}
-
-	private class Price {
-		public string total { get; set; }
-		public string currency { get; set; }
-	}
 }
