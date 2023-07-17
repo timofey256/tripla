@@ -7,10 +7,11 @@ namespace Tripla {
 class AmadeusApiClient {
 	private readonly string apiKey; 
 	private readonly string apiSecret; 
-	private string token;
-       	private DateTime tokenExpireTime { get; set; }	
        	private readonly string	apiBaseUrl = "https://test.api.amadeus.com/v2/shopping/flight-offers";
 	private readonly HttpClient httpClient;
+	
+	private string accessToken;
+       	private DateTime tokenExpireTime { get; set; }	
 	
 	private const int maxOffers = 1;
 
@@ -19,17 +20,17 @@ class AmadeusApiClient {
 		apiKey = _apiKey;
 		apiSecret = _apiSecret;
 		tokenExpireTime = DateTime.Now;
-		token = null;
+		accessToken = null;
 	}
 
 	public async Task<string> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
-		if (token == null && DateTime.Compare(tokenExpireTime, DateTime.Now) <= 0)  {
+		if (accessToken == null && DateTime.Compare(tokenExpireTime, DateTime.Now) <= 0)  {
 			TokenResponse tokenResponse = await GetAccessToken();	
-			token = tokenResponse.access_token;
+			accessToken = tokenResponse.access_token;
 			tokenExpireTime = DateTime.Now.AddSeconds(tokenResponse.expires_in);			
 		}
 
-		Console.WriteLine($"Access token: {token}");
+		Console.WriteLine($"Access token: {accessToken}");
 		var parameters = new Dictionary<string, string>() {
 			{ "originLocationCode", originCode },
 			{ "destinationLocationCode", destinationCode },
@@ -42,7 +43,7 @@ class AmadeusApiClient {
 		string url = urlFormatter.GetUrl(parameters);	
 		httpClient.DefaultRequestHeaders.Clear();
         	
-		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
+		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {accessToken}");
 		httpClient.DefaultRequestHeaders.Add("Accept", $"application/json");
 		
 		Console.WriteLine($"Url: {url}");	
@@ -53,6 +54,7 @@ class AmadeusApiClient {
 		catch (Exception error) {
 			Console.WriteLine(error.Message);
 		}
+		Console.WriteLine(response);
 		return response;
 	}
 	
