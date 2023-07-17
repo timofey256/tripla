@@ -7,7 +7,8 @@ namespace Tripla {
 class AmadeusApiClient {
 	private readonly string apiKey; 
 	private readonly string apiSecret; 
-	private string token; 
+	private string token;
+       	private DateTime tokenExpireTime { get; set; }	
        	private readonly string	apiBaseUrl = "https://test.api.amadeus.com/v2/shopping/flight-offers";
 	private readonly HttpClient httpClient;
 	
@@ -17,12 +18,18 @@ class AmadeusApiClient {
 		httpClient = new HttpClient();
 		apiKey = _apiKey;
 		apiSecret = _apiSecret;
+		tokenExpireTime = DateTime.Now;
 		token = null;
 	}
 
 	public async Task<string> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
-		var localToken = await GetAccessToken();
-		
+		if (token == null && DateTime.Compare(tokenExpireTime, DateTime.Now) <= 0)  {
+			TokenResponse tokenResponse = await GetAccessToken();	
+			token = tokenResponse.access_token;
+			tokenExpireTime = DateTime.Now.AddSeconds(tokenResponse.expires_in);			
+		}
+
+		Console.WriteLine($"Access token: {token}");
 		var parameters = new Dictionary<string, string>() {
 			{ "originLocationCode", originCode },
 			{ "destinationLocationCode", destinationCode },
@@ -35,7 +42,7 @@ class AmadeusApiClient {
 		string url = urlFormatter.GetUrl(parameters);	
 		httpClient.DefaultRequestHeaders.Clear();
         	
-		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {localToken}");
+		httpClient.DefaultRequestHeaders.Add("Authorization", $"Bearer {token}");
 		httpClient.DefaultRequestHeaders.Add("Accept", $"application/json");
 		
 		Console.WriteLine($"Url: {url}");	
@@ -49,7 +56,7 @@ class AmadeusApiClient {
 		return response;
 	}
 	
-	private async Task<string> GetAccessToken() {
+	private async Task<TokenResponse> GetAccessToken() {
 		var url = "https://test.api.amadeus.com/v1/security/oauth2/token";
 
 		// Set the request content
@@ -62,21 +69,13 @@ class AmadeusApiClient {
 		
 		httpClient.DefaultRequestHeaders.TryAddWithoutValidation("Content-Type", "application/x-www-form-urlencoded");
 		
-		string accessToken = "";
+		TokenResponse tokenResponse = null;
 		try {
-		    	// Send the POST request
 			var response = await httpClient.PostAsync(url, content);
-			Console.WriteLine(response);
-		    	// Check the response status code
 			if (response.IsSuccessStatusCode) {
 				// Parse the response JSON
    				string data = await response.Content.ReadAsStringAsync();
-				var tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(data);
-				accessToken = tokenResponse.access_token;
-				int expiresIn = tokenResponse.expires_in;
-
-				Console.WriteLine($"Access Token: {accessToken}");
-				Console.WriteLine($"Expires In: {expiresIn} seconds");
+				tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(data);
 		    	}
 			else {
 				Console.WriteLine($"Request failed with status code {response.StatusCode}.");
@@ -85,8 +84,7 @@ class AmadeusApiClient {
 		catch (Exception ex) {
 		    Console.WriteLine("Request error: " + ex.Message);
 		}	
-		Console.WriteLine(accessToken);
-		return accessToken;
+		return tokenResponse;
 	}
 	
 	public class TokenResponse {
