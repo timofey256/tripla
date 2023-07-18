@@ -14,14 +14,15 @@ class AmadeusApiClient {
 	private string accessToken;
        	private DateTime tokenExpireTime { get; set; }	
 	
-	private const int maxOffers = 5;
+	private readonly int maxOffers;
 	
-	public AmadeusApiClient(string _apiKey, string _apiSecret) {
+	public AmadeusApiClient(string _apiKey, string _apiSecret, int _maxOffers = 5) {
 		httpClient = new HttpClient();
 		apiKey = _apiKey;
 		apiSecret = _apiSecret;
 		tokenExpireTime = DateTime.Now;
 		accessToken = null;
+		maxOffers = _maxOffers;
 	}
 
 	public async Task<FlightOfferResponse> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
