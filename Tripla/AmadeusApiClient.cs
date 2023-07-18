@@ -15,48 +15,6 @@ class AmadeusApiClient {
        	private DateTime tokenExpireTime { get; set; }	
 	
 	private const int maxOffers = 5;
-
-	private class TokenResponse {
-    		public string access_token { get; set; }
-    		public int expires_in { get; set; }
-	}	
-	
-	public class FlightOfferResponse {
-		public List<FlightOffer> data {get; set;}
-	}
-
-	private class FlightOffer {
-		public Price price { get; set; }
-		public List<Itinerary> itineraries { get; set; }
-	}
-	
-	private class Itinerary {
-		public string duration { get; set; }
-		public List<Segment> segments { get; set; }
-	}
-	
-	private class Segment {
-		public Airport departure { get; set; }
-		public Airport arrival { get; set; }
-		public string carrierCode { get; set; }
-		public string number { get; set; }
-		public string duration { get; set; }
-	
-		public override string ToString() {
-			return $"Departure: {departure}. Arrival: {arrival}. Duration: {duration}";
-		}
-	}
-
-	private class Airport {
-		public string iataCode { get; set; }
-		public string terminal { get; set; }
-		public string at { get; set; }
-	}
-		
-	private class Price {
-		public string total { get; set; }
-		public string currency { get; set; }
-	}
 	
 	public AmadeusApiClient(string _apiKey, string _apiSecret) {
 		httpClient = new HttpClient();
@@ -72,7 +30,7 @@ class AmadeusApiClient {
 		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, departureDate, adults);	
 		FlightOfferResponse response = await sendFlightsRequest(endpoint);
 
-		return "";
+		return response;
 	}
 	
 	private string buildFlightOffersEndpoint(string originCode, string destinationCode, string departureDate, int adults) {	
