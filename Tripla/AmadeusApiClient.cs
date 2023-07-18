@@ -14,22 +14,45 @@ class AmadeusApiClient {
 	private string accessToken;
        	private DateTime tokenExpireTime { get; set; }	
 	
-	private const int maxOffers = 1;
+	private const int maxOffers = 5;
 
 	private class TokenResponse {
     		public string access_token { get; set; }
     		public int expires_in { get; set; }
 	}	
 	
-	private class FlightOfferResponse {
+	public class FlightOfferResponse {
 		public List<FlightOffer> data {get; set;}
 	}
 
 	private class FlightOffer {
 		public Price price { get; set; }
-		public List<string> validatingAirlineCodes { get; set; }
+		public List<Itinerary> itineraries { get; set; }
+	}
+	
+	private class Itinerary {
+		public string duration { get; set; }
+		public List<Segment> segments { get; set; }
+	}
+	
+	private class Segment {
+		public Airport departure { get; set; }
+		public Airport arrival { get; set; }
+		public string carrierCode { get; set; }
+		public string number { get; set; }
+		public string duration { get; set; }
+	
+		public override string ToString() {
+			return $"Departure: {departure}. Arrival: {arrival}. Duration: {duration}";
+		}
 	}
 
+	private class Airport {
+		public string iataCode { get; set; }
+		public string terminal { get; set; }
+		public string at { get; set; }
+	}
+		
 	private class Price {
 		public string total { get; set; }
 		public string currency { get; set; }
@@ -43,13 +66,13 @@ class AmadeusApiClient {
 		accessToken = null;
 	}
 
-	public async Task<string> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
+	public async Task<FlightOfferResponse> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
 		await checkIfTokenIsValid();
 		
 		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, departureDate, adults);	
-		string response = await sendFlightsRequest(url);
-		
-		return response;
+		FlightOfferResponse response = await sendFlightsRequest(endpoint);
+
+		return "";
 	}
 	
 	private string buildFlightOffersEndpoint(string originCode, string destinationCode, string departureDate, int adults) {	
@@ -65,19 +88,20 @@ class AmadeusApiClient {
 		return url;		
 	}
 
-	private async Task<string> sendFlightsRequest(string url) {
+	private async Task<FlightOfferResponse> sendFlightsRequest(string url) {
 		setHeaders();
 
-		string response = null;
+		FlightOfferResponse flights = null;
 		try {	
-			response = await httpClient.GetStringAsync(url);
+			string data = await httpClient.GetStringAsync(url);
+			Console.WriteLine(data);
+			flights = JsonConvert.DeserializeObject<FlightOfferResponse>(data);
 		}
 		catch (Exception error) {
 			Console.WriteLine(error.Message);
 		}
 		
-		Console.WriteLine(response);
-		return response;
+		return flights; 
 	}
 
 	private async Task checkIfTokenIsValid() {
