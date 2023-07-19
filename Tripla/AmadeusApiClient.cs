@@ -25,10 +25,11 @@ class AmadeusApiClient {
 		maxOffers = _maxOffers;
 	}
 
-	public async Task<FlightOfferResponse> GetFlights(string originCode, string destinationCode, string departureDate, int adults = 1) {
+	public async Task<FlightOfferResponse> GetFlights(string originCode, string destinationCode, DateTime departureDate, int adults = 1) {
+		string date = departureDate.ToString("yyyy-MM-dd");
 		await checkIfTokenIsValid();
 		
-		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, departureDate, adults);	
+		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, date, adults);	
 		FlightOfferResponse response = await sendFlightsRequest(endpoint);
 
 		return response;
