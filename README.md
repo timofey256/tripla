@@ -1,5 +1,2 @@
-Tripla is a trip planner that helps to find the cheapest trip within given dates through given cities. 
+Tripla is a trip planner that helps to find the cheapest trip through multiple cities on given dates. 
 
-Dependecies:
-1) PuppeteerSharp (to retrieve HTML from dynamically generated pages).
-2) HtmlAgilityPack (to parse HTML)
