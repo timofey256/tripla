@@ -31,6 +31,8 @@ class AmadeusApiClient {
 		
 		string endpoint = buildFlightOffersEndpoint(originCode, destinationCode, date, adults);	
 		FlightOfferResponse response = await sendFlightsRequest(endpoint);
+		
+		Console.WriteLine(response.data[0].itineraries[0].segments[0].departure.at);
 
 		return response;
 	}
