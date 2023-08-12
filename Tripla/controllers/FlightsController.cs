@@ -26,10 +26,12 @@ public class FlightsController : ControllerBase {
 	}
 
 	[HttpGet("route")]
-	public async Task<IActionResult> Get([FromQuery] List<FlightInfo> route) {
+	public async Task<IActionResult> Get([FromQuery] List<FlightInfo> flights) {
 		var itinerary = new List<FlightOfferResponse>();
 
-		foreach (var point in route) {
+		foreach (var point in flights) {
+			Console.WriteLine($"date: {point.DateString}. origin: {point.Origin}. dest: {point.Dest}");
+
 			if (!DateTime.TryParse(point.DateString, out DateTime date))
 			{
 			    return BadRequest("Bad date format");
