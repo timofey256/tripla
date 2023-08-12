@@ -20,13 +20,26 @@ function FlightForm({ onSubmit }) {
   };
 
   const handleSubmit = async () => {
-    const response = await axios.get('http://localhost:5079/flights/route', {
-      params: {
-        route: flights,
-      },
-    });
+	  const baseUrl = 'http://localhost:5079/flights/route';
+	  let queryString = '';
 
-    onSubmit(response.data);
+	  flights.forEach((flight, index) => {
+	    const params = [
+	      `flights[${index}].dateString=${encodeURIComponent(flight.dateString)}`,
+	      `flights[${index}].origin=${encodeURIComponent(flight.origin)}`,
+	      `flights[${index}].dest=${encodeURIComponent(flight.dest)}`,
+	    ];
+	    queryString += (queryString === '') ? `?${params.join('&')}` : `&${params.join('&')}`;
+	  });
+
+	  const fullUrl = `${baseUrl}${queryString}`;
+
+	  try {
+	    const response = await axios.get(fullUrl);
+	    onSubmit(response.data);
+	  } catch (error) {
+	    console.error('Error:', error);
+	  }
   };
 
   return (
