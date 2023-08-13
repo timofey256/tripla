@@ -6,8 +6,10 @@ import './styles.css';
 function FlightForm({ onSubmit }) {
   const MAX_FLIGHTS = 5;
   const navigate = useNavigate();
+  const baseUrl = 'http://localhost:5079/flights/route';
 
   const [flights, setFlights] = useState([{ origin: '', dest: '', dateString: '' }]);
+  const [errorMessage, setErrorMessage] = React.useState("");
 
   const handleInputChange = (index, field, value) => {
     const newFlights = [...flights];
@@ -16,18 +18,27 @@ function FlightForm({ onSubmit }) {
     if (field === 'dest' && newFlights.length > index + 1) {
       newFlights[index+1]['origin'] = value;
     }
-    
+  
+    if (value !== "" && newFlights[index]["origin"] === newFlights[index]["dest"]) {
+      setErrorMessage("Your origin and destination can not be the same!");
+    }
+
     setFlights(newFlights);
   };
 
   const addFlight = () => {
+    if (flights[flights.length-1]['dest'] === "") {
+      setErrorMessage("Before adding new city, choose previous destination!");
+      return;
+    }
+    
     if (flights.length < MAX_FLIGHTS) {
       const lastFlight = flights[flights.length - 1];
-      setFlights([...flights, { origin: lastFlight.dest, dest: '', dateString: '' }]);    }
+      setFlights([...flights, { origin: lastFlight.dest, dest: '', dateString: '' }]);    
+    }
   };
 
   const handleSubmit = async () => {
-    const baseUrl = 'http://localhost:5079/flights/route';
     let queryString = '';
 
     flights.forEach((flight, index) => {
@@ -85,6 +96,7 @@ function FlightForm({ onSubmit }) {
       	<button className="add-flight" onClick={addFlight}>Add New City</button>
       	<button className="find-flight" onClick={handleSubmit}>Find</button>
       </div>
+      {errorMessage && <div className="error"> {errorMessage} </div>}
     </div>
   );
 }

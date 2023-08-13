@@ -24,7 +24,11 @@ body {
 }
 
 .flight-block {
-  width: 280px;
+  width: 300px;
+}
+
+.error {
+  color: #ff0000;
 }
 
 .flights-row {
@@ -35,7 +39,7 @@ body {
 }
 
 input {
-  width: 100px;
+  width: 120px;
   padding: 8px;
   margin: 5px;
   border: 1px solid #ccc;
