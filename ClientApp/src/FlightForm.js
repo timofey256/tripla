@@ -12,6 +12,11 @@ function FlightForm({ onSubmit }) {
   const handleInputChange = (index, field, value) => {
     const newFlights = [...flights];
     newFlights[index][field] = value;
+    
+    if (field === 'dest' && newFlights.length > index + 1) {
+      newFlights[index+1]['origin'] = value;
+    }
+    
     setFlights(newFlights);
   };
 
