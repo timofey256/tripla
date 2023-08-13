@@ -67,7 +67,7 @@ function FlightForm({ onSubmit }) {
             </div>
             <div className="input-row date-row">
               <input
-                type="text"
+                type="date"
                 placeholder="Date (YYYY-MM-DD)"
                 value={flight.dateString}
                 onChange={(e) => handleInputChange(index, 'dateString', e.target.value)}
