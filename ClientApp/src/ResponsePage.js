@@ -14,7 +14,7 @@ const ResponsePage = () => {
             <div key={index} className="flight-response-block">
               <div className='flight-name'>
                 <p>
-                From {flight.data[0].itineraries[0].segments[0].departure.iataCode} to {flight.data[0].itineraries[0].segments[flight.data[0].itineraries[0].segments.length-1].departure.iataCode} 
+                From {flight.data[0].itineraries[0].segments[0].departure.iataCode} to {flight.data[0].itineraries[0].segments[flight.data[0].itineraries[0].segments.length-1].arrival.iataCode} 
                 </p>
               </div>
               <div className='segments'>
