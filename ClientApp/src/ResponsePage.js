@@ -11,7 +11,7 @@ const ResponsePage = () => {
         <h2>Your journey</h2>
         <div className="tickets-block">
           {responseData.map((flight, index) => (
-            <div key={index} className="flight-block">
+            <div key={index} className="ticket-block">
               <div className='flight-name'>
                 <p>
                 From {flight.data[0].itineraries[0].segments[0].departure.iataCode} to {flight.data[0].itineraries[0].segments[flight.data[0].itineraries[0].segments.length-1].arrival.iataCode} 
@@ -41,6 +41,7 @@ const ResponsePage = () => {
 	    	{responseData[0].data[0].price.currency}	
 	   </p>	
 	</div>
+	<button className='buy-tickets'>Buy tickets</button>
       </div>
     );
   };
