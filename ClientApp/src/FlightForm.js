@@ -93,8 +93,8 @@ function FlightForm({ onSubmit }) {
       ))}
       </div>
       <div className="buttons">
-      	<button className="add-flight" onClick={addFlight}>Add New City</button>
-      	<button className="find-flight" onClick={handleSubmit}>Find</button>
+      	<button className="flight-form-button add-flight" onClick={addFlight}>Add New City</button>
+      	<button className="flight-form-button find-flight" onClick={handleSubmit}>Find</button>
       </div>
       {errorMessage && <div className="error"> {errorMessage} </div>}
     </div>
