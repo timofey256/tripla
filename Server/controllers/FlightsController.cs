@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using System;
 
 namespace Tripla.Controllers;
@@ -7,10 +8,16 @@ namespace Tripla.Controllers;
 [Route("[controller]")]
 public class FlightsController : ControllerBase {
 	private readonly AmadeusApiClient client; 
-	
+	private readonly ApiSettings apiSettings;
+
 	public FlightsController() {
-		// Credentials.cs is an uncommited file where senstitive data is stored
-		client = new AmadeusApiClient(Credentials.apiKey, Credentials.apiSecret, 1); 
+	        var configuration = new ConfigurationBuilder()
+		    .SetBasePath(Directory.GetCurrentDirectory())
+		    .AddJsonFile("appsettings.json")
+		    .Build();
+
+		apiSettings = configuration.GetSection("ApiSettings").Get<ApiSettings>();
+		client = new AmadeusApiClient(apiSettings.ApiKey, apiSettings.ApiSecret, 1); 
 	}
 
 	[HttpGet("single")]
