@@ -15,7 +15,7 @@ cd tripla/ClientApp/ && npm install && cd .. # Install frontend dependencies
 
 # Run application:
 cd ClientApp/ && react-scripts start
-cd Server && dotnet run
+cd Server/ && dotnet run
 ```
 
 ## How does it work?
