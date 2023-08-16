@@ -23,7 +23,7 @@ Here's how Tripla works: When a user enters the cities they want to visit and th
 Project structure:
 ```
 .
-├── ClientApp                         # frontend foler
+├── ClientApp                         # frontend folder
 │   ├── public
 │   │   └── index.html
 │   └── src
