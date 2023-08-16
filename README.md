@@ -33,7 +33,7 @@ Project structure:
 │       ├── ResponsePage.js           # tickets(response) frontend page
 │       └── styles.css
 ├── Server                            # backend folder
-│   ├── appsettings.json
+│   ├── appsettings.json              # project config
 │   ├── controllers
 │   │   ├── AmadeusApiClient.cs
 │   │   ├── FlightsController.cs      # controller that handles API requests from the frontend on /route and /single endpoints
