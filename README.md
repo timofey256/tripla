@@ -20,3 +20,38 @@ cd Server/ && dotnet run
 
 ## How does it work?
 Here's how Tripla works: When a user enters the cities they want to visit and their travel dates, the frontend sends this information to the backend. The backend processes the data and then sends a request to the Amadeus API, which provides the latest flight ticket information. Once the backend receives the response from the Amadeus API, it prepares the data and sends it back to the frontend, where users can view and choose from the available flight options. 
+Project structure:
+```
+.
+├── ClientApp                         # frontend foler
+│   ├── public
+│   │   └── index.html
+│   └── src
+│       ├── App.js
+│       ├── FlightForm.js             # main frontend page
+│       ├── index.js
+│       ├── ResponsePage.js           # tickets(response) frontend page
+│       └── styles.css
+├── Server                            # backend folder
+│   ├── appsettings.json
+│   ├── controllers
+│   │   ├── AmadeusApiClient.cs
+│   │   ├── FlightsController.cs      # controller that handles API requests from the frontend on /route and /single endpoints
+│   │   ├── scrapper                  # my failed attempt to scrapp data from SkyScanner instead of using external API (Amadeus)
+│   │   └── UrlFormatter.cs
+│   ├── models                        # data structures
+│   │   ├── Airport.cs
+│   │   ├── ApiSettings.cs
+│   │   ├── Country.cs
+│   │   ├── FlightInfo.cs
+│   │   ├── FlightOffer.cs
+│   │   ├── FlightOfferResponse.cs
+│   │   ├── Itinerary.cs
+│   │   ├── Price.cs
+│   │   ├── Segment.cs
+│   │   └── TokenResponse.cs
+│   ├── Program.cs                    # start point for backend
+│   ├── Properties
+│   │   └── launchSettings.json
+│   └── Server.csproj
+```
