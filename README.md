@@ -19,7 +19,8 @@ cd Server/ && dotnet run
 ```
 
 ## How does it work?
-Here's how Tripla works: When a user enters the cities they want to visit and their travel dates, the frontend sends this information to the backend. The backend processes the data and then sends a request to the Amadeus API, which provides the latest flight ticket information. Once the backend receives the response from the Amadeus API, it prepares the data and sends it back to the frontend, where users can view and choose from the available flight options. 
+When a user enters the cities they want to visit and their travel dates, the frontend sends this information to the backend. The backend processes the data and then sends a request to the Amadeus API, which provides the latest flight ticket information. Once the backend receives the response from the Amadeus API, it prepares the data and sends it back to the frontend, where users can view and choose from the available flight options. 
+
 Project structure:
 ```
 .
@@ -55,3 +56,17 @@ Project structure:
 │   │   └── launchSettings.json
 │   └── Server.csproj
 ```
+
+## Failed scrapper attempt
+In the beginning of the project I was hoping to just scrap the data from some flight tickets aggregator (I choosed [SkyScrapper](https://www.skyscrapper.com/)) but it turned out they have pretty good bot detection systems that I didn't manage to get around. Actually, it doesn't detect the first request but the subsequent ones almost always yes. Anyway, I leaved code here in `/Server/scrapper`. Here is how it works: 
+# `Scrapper.cs`:
+0. Since SkyScrapper is a dynamic website I needed to use headless browser to run it. For this purpose PuppeteerSharp was used. 
+1. After user calls `GetHTML(url)` class setups a browser. To resemble a real user it randomly sets a bunch of headers and cookies(userAgent, monitor size, network settings).
+2. Then it just sends a request via PupeeterSharp and returns HTML.
+
+# `PageParser.cs`
+0. Then we need to parse this HTML in order to get retrieved tickets. 
+1. After `GetAllCards(string page)` recieves a page, it serializes HTML into an object using a HTMLAgilityPack library.
+2. Then get all div objects with a class that contains a specific substring which I figured out is consistently present there (the remaining part is randomly generated each time SkyScrapper sends a page).
+3. And then we construct an instance of Country object the same way by extacting data from specific HTML tags.
+4. So we do for all countries (countries are in "cards" so we call extraction from them `extractCardsInfo()`) and return a list of countries.
