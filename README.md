@@ -59,12 +59,12 @@ Project structure:
 
 ## Failed scrapper attempt
 In the beginning of the project I was hoping to just scrap the data from some flight tickets aggregator (I choosed [SkyScrapper](https://www.skyscrapper.com/)) but it turned out they have pretty good bot detection systems that I didn't manage to get around. Actually, it doesn't detect the first request but the subsequent ones almost always yes. Anyway, I leaved code here in `/Server/scrapper`. Here is how it works: 
-# `Scrapper.cs`:
+### `Scrapper.cs`:
 0. Since SkyScrapper is a dynamic website I needed to use headless browser to run it. For this purpose PuppeteerSharp was used. 
 1. After user calls `GetHTML(url)` class setups a browser. To resemble a real user it randomly sets a bunch of headers and cookies(userAgent, monitor size, network settings).
 2. Then it just sends a request via PupeeterSharp and returns HTML.
 
-# `PageParser.cs`
+### `PageParser.cs`
 0. Then we need to parse this HTML in order to get retrieved tickets. 
 1. After `GetAllCards(string page)` recieves a page, it serializes HTML into an object using a HTMLAgilityPack library.
 2. Then get all div objects with a class that contains a specific substring which I figured out is consistently present there (the remaining part is randomly generated each time SkyScrapper sends a page).
