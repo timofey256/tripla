@@ -18,5 +18,7 @@ cd ClientApp/ && react-scripts start
 cd Server/ && dotnet run
 ```
 
+Then go to `localhost:3000` and enter your desired destinations (in form of airports) and dates.
+
 ## How to use?
 See [doc/how-it-works.md](doc/how-it-works.md)
