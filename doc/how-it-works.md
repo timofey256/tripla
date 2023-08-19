@@ -36,6 +36,19 @@ Project structure:
 │   │   └── launchSettings.json
 │   └── Server.csproj
 ```
+
+### `/ClientApp/public/index.html`
+A standard index html template. The remaining stuff is loaded dynamically. See `/ClientApp/src/`.
+
+### `/ClientApp/src/App.js`
+File where React project structure is defined (routes, pages, components for specific pages, etc.)
+
+### `/ClientApp/src/FlightForm.js`
+React component that is used on a main search page. It displays HTML, handles inputs, validates them, sends and receives requests to the backend.
+
+### `/ClientApp/src/ResponsePage.js`
+React component that is used on a result page. Essantially, its main purpose is to correctly parse received response and display it in a pretty way. No additional logic.
+
 ### `/Server/controllers/FlightController.cs`
 The `FlightController.cs` file is a class that defines the controller which handles requests from the frontend.
 
@@ -55,6 +68,12 @@ The `AmadeusApiClient.cs` file defines a class which is used to send and retriev
 5. The setHeaders method sets headers required to make API requests.
 6. The GetAccessToken method retrieves an access token from the Amadeus API by sending a POST request with the client credentials.
 7. The getRequestContentForAccessToken method prepares the content for the access token request.
+
+### `/Server/models`
+A number of data sctuctures. Many used only for desearialization essantially.
+
+### `/Server/appsetting.json`
+Project file that contains necessary environment to start an application.
 
 
 ## Failed scrapper attempt
