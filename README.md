@@ -19,4 +19,4 @@ cd Server/ && dotnet run
 ```
 
 ## How to use?
-See [how-it-works.md](doc/how-it-works.md)
+See [doc/how-it-works.md](doc/how-it-works.md)
