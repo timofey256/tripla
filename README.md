@@ -20,5 +20,5 @@ cd Server/ && dotnet run
 
 Then go to `localhost:3000` and enter your desired destinations (in form of airport codes) and dates.
 
-## How to use?
+## How it works? 
 See [doc/how-it-works.md](doc/how-it-works.md)
